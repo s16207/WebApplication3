@@ -3,28 +3,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication3.DAL;
+using WebApplication3.Models;
 
 namespace WebApplication3.Controllers
 {
-    [Route("api/students")]
     [ApiController]
-    public class StudentsController : Controller
+    [Route("api/students")]
+    public class StudentsController : ControllerBase
     {
-        [HttpGet]
-        public string GetStudents()
+        private readonly IDbService _dbService;
+        public StudentsController(IDbService dbService)
         {
-            return "Alicja, Patryk, Kupa";
+            _dbService = dbService;
         }
-        [HttpGet("{id}")]
-        public string GetStudent(int id)
+
+        [HttpGet]
+        public IActionResult GetStudents(string orderBy)
         {
-            if(id == 1)
+            return Ok(_dbService.GetStudents());
+        }
+
+        [HttpPost]
+        public IActionResult CreateStudent([FromBody] Student student)
+        {
+            student.IndexNumber = $"s{new Random().Next(1, 20000)}";
+            return Ok(student);
+        }
+        [HttpGet("{id:int}")]
+        public IActionResult GetStudentById([FromRoute] int id)
+        {
+            if (id == 1)
             {
-                return "Jan Jeden";
+                return Ok("Kowalski");
+            }
+            else if (id == 2)
+            {
+                return Ok("Malewski");
+            }
+            else if (id == 3)
+            {
+                return Ok("Andrzejewski");
             }
 
-            return "Not found";
+            return NotFound($"Nie znaleziono studenta o id {id}");
+
         }
 
+        [HttpPut("{id:int}")]
+        public IActionResult UpdateStudent([FromRoute] int id)
+        {
+            return Ok("Aktualizacja dokończona");
+        }
+
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteStudent([FromRoute] int id)
+        {
+            return Ok("Usuwanie ukończone");
+        }
     }
 }
